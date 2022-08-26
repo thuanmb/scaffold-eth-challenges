@@ -60,7 +60,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.goerli; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -156,7 +156,8 @@ const web3Modal = new Web3Modal({
     // },
     "custom-walletlink": {
       display: {
-        logo: "https://play-lh.googleusercontent.com/PjoJoG27miSglVBXoXrxBSLveV6e3EeBPpNY55aiUUBM9Q1RCETKCOqdOkX2ZydqVf0",
+        logo:
+          "https://play-lh.googleusercontent.com/PjoJoG27miSglVBXoXrxBSLveV6e3EeBPpNY55aiUUBM9Q1RCETKCOqdOkX2ZydqVf0",
         name: "Coinbase",
         description: "Connect to Coinbase Wallet (not Coinbase App)",
       },
@@ -456,6 +457,16 @@ function App(props) {
   const [diceRolled, setDiceRolled] = useState(false);
   const [diceRollImage, setDiceRollImage] = useState(null);
   const [claiming, setClaiming] = useState(false);
+  const [wonAmount, setWonAmount] = useState(null);
+
+  useEffect(() => {
+    readContracts.RiggedRoll?.getWonPrizeTotal().then(wonPrize => {
+      // amountEth = web3.fromWei(wonPrize.toString(), "ether");
+      let amountEth = wonPrize;
+      console.log("Won prize update: ", amountEth);
+      setWonAmount(amountEth);
+    });
+  }, [winnerEvents]);
 
   let diceRollImg = "";
   if (diceRollImage) {
@@ -474,7 +485,6 @@ function App(props) {
     });
   };
 
-    /*
   const riggedRoll = async () => {
     tx(writeContracts.RiggedRoll.riggedRoll({ gasLimit: 500000 }), update => {
       console.log("TX UPDATE", update);
@@ -498,18 +508,23 @@ function App(props) {
 
   readContracts.DiceGame?.on(riggedFilter, (_, value) => {
     if (value) {
-      const numberRolled = value.toNumber().toString(16).toUpperCase();
+      const numberRolled = value
+        .toNumber()
+        .toString(16)
+        .toUpperCase();
       setDiceRollImage(numberRolled);
       setDiceRolled(false);
     }
   });
-*/
 
   const filter = readContracts.DiceGame?.filters.Roll(address, null);
 
   readContracts.DiceGame?.on(filter, (_, value) => {
     if (value) {
-      const numberRolled = value.toNumber().toString(16).toUpperCase();
+      const numberRolled = value
+        .toNumber()
+        .toString(16)
+        .toUpperCase();
       setDiceRollImage(numberRolled);
       setDiceRolled(false);
     }
@@ -560,7 +575,11 @@ function App(props) {
                         key={item.args[0] + " " + item.args[1] + " " + date.getTime() + " " + item.blockNumber}
                       >
                         <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} />
-                        &nbsp;Roll:&nbsp;{item.args[1].toNumber().toString(16).toUpperCase()}
+                        &nbsp;Roll:&nbsp;
+                        {item.args[1]
+                          .toNumber()
+                          .toString(16)
+                          .toUpperCase()}
                       </List.Item>
                     );
                   }}
@@ -573,7 +592,6 @@ function App(props) {
                   <Button type="primary" disabled={diceRolled} onClick={rollTheDice}>
                     Roll the dice!
                   </Button>
-                  {/*
                   <div style={{ padding: 16 }}>
                     <Account
                       address={readContracts?.RiggedRoll?.address}
@@ -590,7 +608,10 @@ function App(props) {
                       Rigged Roll!
                     </Button>
                   </div>
-                */}
+                  <div>
+                    Won Prize:
+                    <Balance balance={wonAmount} price={price} fontSize={24} />
+                  </div>
                 </div>
                 {diceRollImg}
               </div>
@@ -689,14 +710,8 @@ function App(props) {
 
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
+            {/*  if the local provider has a signer, let's show the faucet:  */
+            faucetAvailable ? <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} /> : ""}
           </Col>
         </Row>
       </div>
