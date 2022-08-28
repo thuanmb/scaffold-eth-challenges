@@ -7,7 +7,6 @@ contract DiceGame {
 
     uint256 public nonce = 0;
     uint256 public prize = 0;
-    uint public threshold = 2;
 
     event Roll(address indexed player, uint256 roll);
     event Winner(address winner, uint256 amount);
@@ -45,7 +44,7 @@ contract DiceGame {
 
         emit Roll(msg.sender, roll);
 
-        if (roll > threshold) {
+        if (roll > 2) {
             return;
         }
 

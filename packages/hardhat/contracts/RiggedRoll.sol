@@ -54,7 +54,7 @@ contract RiggedRoll is Ownable {
 
         console.log("Predicted roll: ", roll);
 
-        if (roll > diceGame.threshold()) {
+        if (roll > 2) {
             revert("Roll dice is greater than threshold!");
         }
 
